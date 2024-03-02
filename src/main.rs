@@ -1,42 +1,43 @@
-use std::env;
-use std::fs::File;
-use std::io::BufRead;
-use std::io::BufReader;
+use std::str::FromStr;
+use std::{env, path::Path};
 
-fn words_count(path: &str) -> usize {
-    let file = File::open(&path).expect("Cannot open file");
-    let reader = BufReader::new(file);
+use wc::{line_count, words_count};
 
-    reader
-        .lines()
-        .map(|line| line.unwrap().split_whitespace().count())
-        .reduce(|acc, e| acc + e)
-        .unwrap()
+pub enum Mode {
+    Words,
+    Lines,
 }
 
-fn line_count(path: &str) -> usize {
-    let file = File::open(&path).expect("Cannot open file");
-    let reader = BufReader::new(file);
-    reader.lines().count()
-}
+impl FromStr for Mode {
+    type Err = &'static str;
 
-fn count(path: &str, mode: &str) -> usize {
-    if mode == "-w" {
-        words_count(&path)
-    } else if mode == "-l" {
-        line_count(&path)
-    } else {
-        panic!("Unknown mode")
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "-w" | "--words" => Ok(Mode::Words),
+            "-l" | "--lines" => Ok(Mode::Lines),
+            _ => Err("Unknown mode, use -w|--words or -l|--lines"),
+        }
     }
 }
 
-fn main() {
-    // Args parsing: wc <path> (-w|-l)
-    // first arg: path of file
-    let path = env::args().nth(1).expect("No path given");
-    // -w | -l
-    let mode = env::args().nth(2).unwrap_or("-w".to_string());
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args: Vec<String> = env::args().collect();
 
-    let result = count(&path, &mode);
-    println!("{result} {}", &path);
+    if args.len() < 3 {
+        eprintln!("Usage: {} <file_path> (-w | -l)", args[0]);
+        std::process::exit(1);
+    }
+
+    let path_str = &args[1];
+    let path = Path::new(path_str).canonicalize()?;
+    let mode = Mode::from_str(&args[2])?;
+
+    let result = match mode {
+        Mode::Words => words_count(&path)?,
+        Mode::Lines => line_count(&path)?,
+    };
+
+    println!("{result} {}", path.display());
+
+    Ok(())
 }
