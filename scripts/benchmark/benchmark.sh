@@ -5,6 +5,7 @@ script_dir=$(dirname "$0")
 report="$script_dir/out/report-$current_time.md"
 lines_report="$script_dir/out/lines.md"
 words_report="$script_dir/out/words.md"
+bytes_report="$script_dir/out/bytes.md"
 warmup=15
 runs=100
 
@@ -39,6 +40,5 @@ echo "# Benchmark report" > $report
 
 # line mode
 bench $lines_report --lines
-
-# word mode
 bench $words_report --words
+bench $bytes_report --bytes
