@@ -80,20 +80,6 @@ fn get_calculus(args: &CliParser) -> Vec<Mode> {
     flags
 }
 
-fn compute_for_file(path: &str, flags: &[Mode]) -> Result<Vec<u64>, io::Error> {
-    let counts = count_file(path)?;
-    let mut results = Vec::with_capacity(flags.len());
-    for flag in flags {
-        match flag {
-            Mode::Lines => results.push(counts.0 as u64),
-            Mode::Words => results.push(counts.1 as u64),
-            Mode::Bytes => results.push(counts.2),
-        }
-    }
-
-    Ok(results)
-}
-
 pub fn print_results(results: &Vec<WcResult>) {
     if results.is_empty() {
         return;
@@ -121,38 +107,45 @@ pub fn print_results(results: &Vec<WcResult>) {
     }
 }
 
-fn compute_total(results: &[WcResult]) -> WcResult {
-    let mut sizes: Vec<u64> = vec![0; results[0].sizes.len()];
-    sizes.fill(0);
-
-    for result in results {
-        for (i, &size) in result.sizes.iter().enumerate() {
-            sizes[i] += size;
+fn sizes_for_flags(counts: (u64, u64, u64), flags: &[Mode]) -> Vec<u64> {
+    let mut sizes = Vec::with_capacity(flags.len());
+    for flag in flags {
+        match flag {
+            Mode::Lines => sizes.push(counts.0),
+            Mode::Words => sizes.push(counts.1),
+            Mode::Bytes => sizes.push(counts.2),
         }
     }
-
-    WcResult {
-        sizes,
-        name: "Total".to_string(),
-    }
+    sizes
 }
 
 pub fn run(args: &CliParser) -> io::Result<Vec<WcResult>> {
     let flags = get_calculus(&args);
 
+    let mut total: (u64, u64, u64) = (0, 0, 0);
+
     let mut results: Vec<WcResult> = Vec::new();
 
     for name in &args.files {
-        let sizes = compute_for_file(&name, &flags)?;
+        let counts = count_file(name)?;
+        let sizes = sizes_for_flags(counts, &flags);
+        // Happen current counts to global res
+        total.0 += counts.0;
+        total.1 += counts.1;
+        total.1 += counts.2;
         results.push(WcResult {
             sizes,
             name: name.to_string(),
         });
     }
 
+    // only happen global total if command executed on more than 1 file
     if results.len() > 1 {
-        let total = compute_total(&results);
-        results.push(total);
+        let sizes = sizes_for_flags(total, &flags);
+        results.push(WcResult {
+            sizes,
+            name: "total".to_string(),
+        });
     }
 
     Ok(results)
