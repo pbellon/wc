@@ -24,7 +24,6 @@ append_to_report() {
 
 # Function to append results to the report and clean up
 append_results_to_report_and_cleanup() {
-    append_to_report "## \`wc$2\` benchmark"
     cat "$1" >>"$report"
     rm "$1"
 }
@@ -44,6 +43,7 @@ bench_modes() {
         # Check if the mode is "all"
         if [ "$mode" == "all" ]; then
             mode_arg=""
+
         else
             mode_arg=" --${mode}"
         fi
@@ -56,12 +56,13 @@ bench_modes() {
         done
 
         hf "${args[@]}"
+        append_to_report "## \`wc$mode_arg\` benchmark"
         append_results_to_report_and_cleanup "$mode_report" "$mode_arg"
     done
 }
 
-# Benchmark for wildcard
-bench_wildcard() {
+# Benchmark to compare with locally installed `wc` command
+bench_with_os_wc() {
     wildcard_report="$script_dir/out/wildcard.md"
     wc_path=$(local_wc)
     data_files=$(get_data_files)
@@ -70,10 +71,11 @@ bench_wildcard() {
     os_cmd="wc $data_files"
 
     hf --export-markdown "$wildcard_report" \
-        -n "wc(local) data/*.txt" "$local_cmd" \
-        -n "wc(GNU) data/*.txt" "$os_cmd"
+        -n "wc(compiled) data/*.txt" "$local_cmd" \
+        -n "wc(installed) data/*.txt" "$os_cmd"
 
-    append_results_to_report_and_cleanup "$wildcard_report" " data/*.txt"
+    append_to_report "## Comparision with installed wc"
+    append_results_to_report_and_cleanup "$wildcard_report"
 }
 
 touch "$report"
@@ -85,5 +87,5 @@ append_to_report "|------|-------|"
 append_to_report "| **Number of runs** | $runs |"
 append_to_report "| **Number of warumps**| $warmup |"
 
-bench_wildcard
+bench_with_os_wc
 bench_modes
