@@ -52,11 +52,9 @@ fn test_bytes_count() -> io::Result<()> {
 
 #[test]
 fn test_process_files_single() -> io::Result<()> {
-    let pathes = vec![data_file(100)];
-
+    let paths = vec![data_file(100)];
     let metrics = vec![Metric::Lines, Metric::Words, Metric::Bytes];
-
-    let results = process_files(&pathes, &metrics)?;
+    let results = process_files(&paths, &metrics)?;
 
     let expected: Vec<WcLineResult> = vec![WcLineResult {
         name: data_file(100),
@@ -70,11 +68,9 @@ fn test_process_files_single() -> io::Result<()> {
 
 #[test]
 fn test_process_files_all() -> io::Result<()> {
-    let pathes = vec![data_file(100), data_file(200), data_file(500)];
-
+    let paths = vec![data_file(100), data_file(200), data_file(500)];
     let metrics = vec![Metric::Lines, Metric::Words, Metric::Bytes];
-
-    let results = process_files(&pathes, &metrics)?;
+    let results = process_files(&paths, &metrics)?;
 
     let expected: Vec<WcLineResult> = vec![
         WcLineResult {

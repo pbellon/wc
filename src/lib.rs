@@ -41,11 +41,11 @@ fn sizes_for_metrics(counts: (u64, u64, u64), metrics: &[Metric]) -> Vec<u64> {
     sizes
 }
 
-pub fn process_files(pathes: &Vec<String>, metrics: &[Metric]) -> io::Result<Vec<WcLineResult>> {
+pub fn process_files(paths: &Vec<String>, metrics: &[Metric]) -> io::Result<Vec<WcLineResult>> {
     let mut total_counts: (u64, u64, u64) = (0, 0, 0);
     let mut results: Vec<WcLineResult> = Vec::new();
 
-    for path in pathes {
+    for path in paths {
         let file_counts = count_file(path)?;
         let sizes = sizes_for_metrics(file_counts, metrics);
         // Happen current counts to global res
