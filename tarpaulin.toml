@@ -1,0 +1,7 @@
+[all]
+all-features = true
+exclude-files = ["src/main.rs"]
+
+[report]
+out = ["Html", "Xml"]
+output-dir = "target/coverage"
