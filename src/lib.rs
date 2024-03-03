@@ -1,8 +1,7 @@
 use std::{
     fs::File,
-    io::{self, BufRead, BufReader, Read},
+    io::{self, BufRead, BufReader},
     path::Path,
-    str::FromStr,
 };
 
 use clap::{command, Parser};
@@ -12,19 +11,6 @@ pub enum Mode {
     Words,
     Lines,
     Bytes,
-}
-
-impl FromStr for Mode {
-    type Err = &'static str;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "-w" | "--words" => Ok(Mode::Words),
-            "-l" | "--lines" => Ok(Mode::Lines),
-            "-b" | "--bytes" => Ok(Mode::Bytes),
-            _ => Err("Unknown mode, use -w|--words or -l|--lines"),
-        }
-    }
 }
 
 #[derive(Parser)] // requires `derive` feature
@@ -48,49 +34,26 @@ pub struct CliParser {
 }
 
 pub struct WcResult {
-    sizes: Vec<usize>,
+    sizes: Vec<u64>,
     name: String,
 }
 
-fn get_reader(path: &str) -> io::Result<BufReader<File>> {
+pub fn count_file(path: &str) -> io::Result<(u64, u64, u64)> {
     let path = Path::new(path).canonicalize()?;
     let file = File::open(path)?;
+
+    let bytes = file.metadata()?.len();
     let reader = BufReader::new(file);
 
-    Ok(reader)
-}
+    let mut lines = 0;
+    let mut words = 0;
 
-pub fn words_count(path: &str) -> io::Result<usize> {
-    let reader = get_reader(path)?;
-    let count = reader
-        .lines()
-        .filter_map(Result::ok)
-        .map(|line| line.split_ascii_whitespace().count())
-        .sum();
-
-    Ok(count)
-}
-
-pub fn lines_count(path: &str) -> io::Result<usize> {
-    let reader = get_reader(path)?;
-    let count = reader.lines().filter_map(Result::ok).count();
-    Ok(count)
-}
-
-pub fn bytes_count(path: &str) -> io::Result<usize> {
-    let mut reader = get_reader(path)?;
-    let mut count = 0;
-    let mut buffer = [0; 1024]; // Adjust buffer size as needed
-
-    loop {
-        match reader.read(&mut buffer) {
-            Ok(0) => break, // End of file
-            Ok(n) => count += n,
-            Err(e) => return Err(e),
-        }
+    for line in reader.lines().filter_map(Result::ok) {
+        lines += 1;
+        words += line.split_ascii_whitespace().count();
     }
 
-    Ok(count)
+    Ok((lines as u64, words as u64, bytes))
 }
 
 /// Get the list of calculus to perform on the list of files
@@ -117,15 +80,18 @@ fn get_calculus(args: &CliParser) -> Vec<Mode> {
     flags
 }
 
-fn compute_for_file(path: &str, flags: &Vec<Mode>) -> Result<Vec<usize>, io::Error> {
-    flags
-        .iter()
-        .map(|f| match f {
-            Mode::Bytes => bytes_count(&path),
-            Mode::Lines => lines_count(&path),
-            Mode::Words => words_count(&path),
-        })
-        .collect()
+fn compute_for_file(path: &str, flags: &[Mode]) -> Result<Vec<u64>, io::Error> {
+    let counts = count_file(path)?;
+    let mut results = Vec::with_capacity(flags.len());
+    for flag in flags {
+        match flag {
+            Mode::Lines => results.push(counts.0 as u64),
+            Mode::Words => results.push(counts.1 as u64),
+            Mode::Bytes => results.push(counts.2),
+        }
+    }
+
+    Ok(results)
 }
 
 pub fn print_results(results: &Vec<WcResult>) {
@@ -156,7 +122,7 @@ pub fn print_results(results: &Vec<WcResult>) {
 }
 
 fn compute_total(results: &[WcResult]) -> WcResult {
-    let mut sizes: Vec<usize> = vec![0; results[0].sizes.len()];
+    let mut sizes: Vec<u64> = vec![0; results[0].sizes.len()];
     sizes.fill(0);
 
     for result in results {

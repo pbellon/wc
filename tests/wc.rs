@@ -1,28 +1,28 @@
 use std::io;
-use wc::{bytes_count, lines_count, words_count};
+use wc::count_file;
 
 fn data_file(paragraphs: u32) -> String {
-    format!("./scripts//benchmark/data/{}.txt", paragraphs)
+    format!("./scripts/benchmark/data/{}.txt", paragraphs)
 }
 
-fn test_lines(paragraphs: u32, expected: usize) -> io::Result<()> {
+fn test_lines(paragraphs: u32, expected: u64) -> io::Result<()> {
     let path = data_file(paragraphs);
-    let lines = lines_count(&path)?;
-    assert_eq!(lines, expected);
+    let lines = count_file(&path)?;
+    assert_eq!(lines.0, expected);
     Ok(())
 }
 
-fn test_words(paragraphs: u32, expected: usize) -> io::Result<()> {
+fn test_words(paragraphs: u32, expected: u64) -> io::Result<()> {
     let path = data_file(paragraphs);
-    let lines = words_count(&path)?;
-    assert_eq!(lines, expected);
+    let lines = count_file(&path)?;
+    assert_eq!(lines.1, expected);
     Ok(())
 }
 
-fn test_bytes(paragraphs: u32, expected: usize) -> io::Result<()> {
+fn test_bytes(paragraphs: u32, expected: u64) -> io::Result<()> {
     let path = data_file(paragraphs);
-    let lines = bytes_count(&path)?;
-    assert_eq!(lines, expected);
+    let lines = count_file(&path)?;
+    assert_eq!(lines.2, expected);
     Ok(())
 }
 
