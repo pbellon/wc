@@ -19,6 +19,24 @@ pub struct WcLineResult {
     pub name: String,
 }
 
+impl WcLineResult {
+    pub fn from(counts: &(u64, u64, u64), name: &str, metrics: &[Metric]) -> WcLineResult {
+        let sizes = metrics
+            .iter()
+            .map(|metric| match metric {
+                Metric::Lines => counts.0,
+                Metric::Words => counts.1,
+                Metric::Bytes => counts.2,
+            })
+            .collect();
+
+        WcLineResult {
+            sizes,
+            name: String::from(name),
+        }
+    }
+}
+
 impl PartialEq for WcLineResult {
     fn eq(&self, other: &Self) -> bool {
         self.sizes == other.sizes && self.name == other.name

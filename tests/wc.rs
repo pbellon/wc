@@ -97,6 +97,36 @@ fn test_process_files_all() -> io::Result<()> {
 }
 
 #[test]
+fn test_process_files_partial_metrics() -> io::Result<()> {
+    let paths = vec![data_file(100), data_file(200), data_file(500)];
+    let metrics = vec![Metric::Words, Metric::Bytes];
+    let results = process_files(&paths, &metrics)?;
+
+    let expected: Vec<WcLineResult> = vec![
+        WcLineResult {
+            name: data_file(100),
+            sizes: vec![11444, 77159],
+        },
+        WcLineResult {
+            name: data_file(200),
+            sizes: vec![22253, 149861],
+        },
+        WcLineResult {
+            name: data_file(500),
+            sizes: vec![56390, 379590],
+        },
+        WcLineResult {
+            name: "total".to_string(),
+            sizes: vec![90087, 606610],
+        },
+    ];
+
+    assert_eq!(results, expected);
+
+    Ok(())
+}
+
+#[test]
 fn test_get_metrics_from_args_no_flags() {
     let args = CliParser {
         words: false,
