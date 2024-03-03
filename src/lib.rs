@@ -29,7 +29,7 @@ pub fn count_file(path: &str) -> io::Result<(u64, u64, u64)> {
     Ok((lines as u64, words as u64, bytes))
 }
 
-fn sizes_for_metrics(counts: (u64, u64, u64), metrics: &[Metric]) -> Vec<u64> {
+fn filter_counts_by_metrics(counts: (u64, u64, u64), metrics: &[Metric]) -> Vec<u64> {
     let mut sizes: Vec<u64> = Vec::with_capacity(metrics.len());
     for metric in metrics {
         match metric {
@@ -47,7 +47,7 @@ pub fn process_files(paths: &Vec<String>, metrics: &[Metric]) -> io::Result<Vec<
 
     for path in paths {
         let file_counts = count_file(path)?;
-        let sizes = sizes_for_metrics(file_counts, metrics);
+        let sizes = filter_counts_by_metrics(file_counts, metrics);
         // Happen current counts to global res
         total_counts.0 += file_counts.0;
         total_counts.1 += file_counts.1;
@@ -60,7 +60,7 @@ pub fn process_files(paths: &Vec<String>, metrics: &[Metric]) -> io::Result<Vec<
 
     // only happen global total if command executed on more than 1 file
     if results.len() > 1 {
-        let sizes = sizes_for_metrics(total_counts, metrics);
+        let sizes = filter_counts_by_metrics(total_counts, metrics);
         results.push(WcLineResult {
             sizes,
             name: "total".to_string(),
