@@ -9,7 +9,7 @@ use std::{
 
 pub use crate::models::{Metric, WcLineResult};
 
-pub use crate::parser::{get_metrics_from_args, CliParser};
+pub use crate::parser::CliParser;
 
 pub fn count_file(path: &str) -> io::Result<(u64, u64, u64)> {
     let path = Path::new(path).canonicalize()?;

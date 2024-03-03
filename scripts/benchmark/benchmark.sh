@@ -7,8 +7,8 @@ lines_report="$script_dir/out/lines.md"
 words_report="$script_dir/out/words.md"
 bytes_report="$script_dir/out/bytes.md"
 wildcard_report="$script_dir/out/wildcard.md"
-warmup=15
-runs=100
+warmup=100
+runs=700
 
 cargo build --release
 

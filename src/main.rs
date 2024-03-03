@@ -2,7 +2,7 @@
 use std::io;
 
 use clap::Parser;
-use wc::{get_metrics_from_args, process_files, CliParser, WcLineResult};
+use wc::{process_files, CliParser, WcLineResult};
 
 pub fn print_results(results: &[WcLineResult]) {
     if results.is_empty() {
@@ -33,7 +33,7 @@ pub fn print_results(results: &[WcLineResult]) {
 
 fn main() -> Result<(), io::Error> {
     let args = CliParser::parse();
-    let metrics = get_metrics_from_args(&args);
+    let metrics = args.get_metrics();
     let results = process_files(&args.files, &metrics)?;
     print_results(&results);
 

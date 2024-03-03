@@ -1,5 +1,5 @@
 use std::io;
-use wc::{count_file, get_metrics_from_args, process_files, CliParser, Metric, WcLineResult};
+use wc::{count_file, process_files, CliParser, Metric, WcLineResult};
 
 fn data_file(paragraphs: u32) -> String {
     format!("./scripts/benchmark/data/{}.txt", paragraphs)
@@ -108,7 +108,7 @@ fn test_get_metrics_from_args_no_flags() {
         bytes: false,
         files: vec![],
     };
-    let metrics = get_metrics_from_args(&args);
+    let metrics = args.get_metrics();
     let expected = vec![Metric::Lines, Metric::Words, Metric::Bytes];
     assert_eq!(metrics, expected);
 }
@@ -121,7 +121,7 @@ fn test_get_metrics_from_args_all_flags() {
         bytes: true,
         files: vec![],
     };
-    let metrics = get_metrics_from_args(&args);
+    let metrics = args.get_metrics();
     let expected = vec![Metric::Lines, Metric::Words, Metric::Bytes];
     assert_eq!(metrics, expected);
 }
@@ -134,7 +134,7 @@ fn test_get_metrics_from_args_partial_flags() {
         bytes: false,
         files: vec![],
     };
-    let metrics = get_metrics_from_args(&args);
+    let metrics = args.get_metrics();
     let expected = vec![Metric::Words];
     assert_eq!(metrics, expected);
 }

@@ -22,23 +22,25 @@ pub struct CliParser {
     pub files: Vec<String>,
 }
 
-pub fn get_metrics_from_args(args: &CliParser) -> Vec<Metric> {
-    let mut metrics = Vec::new();
+impl CliParser {
+    pub fn get_metrics(&self) -> Vec<Metric> {
+        let mut metrics = Vec::new();
 
-    if args.lines {
-        metrics.push(Metric::Lines);
-    }
-    if args.words {
-        metrics.push(Metric::Words);
-    }
-    if args.bytes {
-        metrics.push(Metric::Bytes);
-    }
+        if self.lines {
+            metrics.push(Metric::Lines);
+        }
+        if self.words {
+            metrics.push(Metric::Words);
+        }
+        if self.bytes {
+            metrics.push(Metric::Bytes);
+        }
 
-    // If no flags are provided, assume all metrics are wanted
-    if metrics.is_empty() {
-        metrics = vec![Metric::Lines, Metric::Words, Metric::Bytes];
-    }
+        // If no flags are provided, assume all metrics are wanted
+        if metrics.is_empty() {
+            metrics = vec![Metric::Lines, Metric::Words, Metric::Bytes];
+        }
 
-    metrics
+        metrics
+    }
 }
