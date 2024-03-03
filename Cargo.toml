@@ -11,3 +11,4 @@ clap = { version = "4.5.1", features = ["derive"] }
 [lib]
 name="wc"
 path = "src/lib.rs"
+
