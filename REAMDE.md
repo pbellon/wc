@@ -4,6 +4,6 @@ Small experiment to mimic `wc` GNU utils. The main goal is to learn a little bit
 
 ## Tasks
 
-- [ ] Handle no mode set (=> all mode at once)
-- [ ] Handle multiple files
+- [x] Handle no mode set (=> all mode at once)
+- [x] Handle multiple files
 - [ ] Experiment with cargo bench
