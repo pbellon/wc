@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 /// All possible metrics for file
 #[derive(Debug)]
 pub enum Metric {
@@ -12,6 +14,30 @@ impl PartialEq for Metric {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct Counts(pub u64, pub u64, pub u64);
+
+impl Add for Counts {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        Counts(self.0 + other.0, self.1 + other.1, self.2 + other.2)
+    }
+}
+
+impl Counts {
+    fn filter_by_metrics(&self, metrics: &[Metric]) -> Vec<u64> {
+        metrics
+            .iter()
+            .map(|metric| match metric {
+                Metric::Lines => self.0,
+                Metric::Words => self.1,
+                Metric::Bytes => self.2,
+            })
+            .collect()
+    }
+}
+
 /// Represents a line in the program results, one per file + one for total
 #[derive(Debug)]
 pub struct WcLineResult {
@@ -20,16 +46,8 @@ pub struct WcLineResult {
 }
 
 impl WcLineResult {
-    pub fn from(counts: &(u64, u64, u64), name: &str, metrics: &[Metric]) -> WcLineResult {
-        let sizes = metrics
-            .iter()
-            .map(|metric| match metric {
-                Metric::Lines => counts.0,
-                Metric::Words => counts.1,
-                Metric::Bytes => counts.2,
-            })
-            .collect();
-
+    pub fn from(counts: &Counts, name: &str, metrics: &[Metric]) -> WcLineResult {
+        let sizes = counts.filter_by_metrics(metrics);
         WcLineResult {
             sizes,
             name: String::from(name),
