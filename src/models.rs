@@ -17,6 +17,12 @@ impl PartialEq for Metric {
 #[derive(Debug, Clone, Copy)]
 pub struct Counts(pub u64, pub u64, pub u64);
 
+impl std::fmt::Display for Counts {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} lines, {} words, {} bytes", self.0, self.1, self.2)
+    }
+}
+
 impl Add for Counts {
     type Output = Self;
 

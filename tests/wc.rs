@@ -1,5 +1,5 @@
 use std::io;
-use wc::{count_file, process_files, CliParser, Metric, WcLineResult};
+use wc::{process_file, process_files, CliParser, Metric, WcLineResult};
 
 fn data_file(paragraphs: u32) -> String {
     format!("./scripts/benchmark/data/{}.txt", paragraphs)
@@ -7,21 +7,21 @@ fn data_file(paragraphs: u32) -> String {
 
 fn test_lines(paragraphs: u32, expected: u64) -> io::Result<()> {
     let path = data_file(paragraphs);
-    let lines = count_file(&path)?;
+    let lines = process_file(&path)?;
     assert_eq!(lines.0, expected);
     Ok(())
 }
 
 fn test_words(paragraphs: u32, expected: u64) -> io::Result<()> {
     let path = data_file(paragraphs);
-    let lines = count_file(&path)?;
+    let lines = process_file(&path)?;
     assert_eq!(lines.1, expected);
     Ok(())
 }
 
 fn test_bytes(paragraphs: u32, expected: u64) -> io::Result<()> {
     let path = data_file(paragraphs);
-    let lines = count_file(&path)?;
+    let lines = process_file(&path)?;
     assert_eq!(lines.2, expected);
     Ok(())
 }
@@ -132,7 +132,7 @@ fn test_get_metrics_from_args_no_flags() {
         words: false,
         lines: false,
         bytes: false,
-        files: vec![],
+        files: Some(vec![]),
     };
     let metrics = args.get_metrics();
     let expected = vec![Metric::Lines, Metric::Words, Metric::Bytes];
@@ -145,7 +145,7 @@ fn test_get_metrics_from_args_all_flags() {
         words: true,
         lines: true,
         bytes: true,
-        files: vec![],
+        files: Some(vec![]),
     };
     let metrics = args.get_metrics();
     let expected = vec![Metric::Lines, Metric::Words, Metric::Bytes];
@@ -158,7 +158,7 @@ fn test_get_metrics_from_args_partial_flags() {
         words: true,
         lines: false,
         bytes: false,
-        files: vec![],
+        files: Some(vec![]),
     };
     let metrics = args.get_metrics();
     let expected = vec![Metric::Words];

@@ -19,7 +19,7 @@ pub struct CliParser {
 
     /// List of files to parse
     #[arg()]
-    pub files: Vec<String>,
+    pub files: Option<Vec<String>>,
 }
 
 impl CliParser {

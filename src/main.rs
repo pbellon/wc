@@ -1,7 +1,7 @@
 // use std::env::args;
-use std::io;
-
-use clap::Parser;
+use atty::Stream;
+use clap::{CommandFactory, Parser};
+use std::io::{self};
 use wc::{process_files, CliParser, WcLineResult};
 
 pub fn print_results(results: &[WcLineResult]) {
@@ -34,7 +34,15 @@ pub fn print_results(results: &[WcLineResult]) {
 fn main() -> Result<(), io::Error> {
     let args = CliParser::parse();
     let metrics = args.get_metrics();
-    let results = process_files(&args.files, &metrics)?;
+    let files = args.files.unwrap_or(vec![]);
+
+    if atty::is(Stream::Stdin) && files.is_empty() {
+        CliParser::command().print_help()?;
+        println!();
+        return Ok(());
+    }
+
+    let results = process_files(&files, &metrics)?;
     print_results(&results);
 
     Ok(())

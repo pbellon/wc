@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use wc::{count_file, process_files, Metric};
+use wc::{process_file, process_files, Metric};
 
 fn data_file(name: &str) -> String {
     format!("./scripts/benchmark/data/{}", name)
@@ -7,7 +7,7 @@ fn data_file(name: &str) -> String {
 
 fn benchmark_count_file(c: &mut Criterion) {
     c.bench_function("count_file", |b| {
-        b.iter(|| count_file(black_box(&data_file("900.txt"))))
+        b.iter(|| process_file(black_box(&data_file("900.txt"))))
     });
 }
 
