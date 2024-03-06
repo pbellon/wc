@@ -1,0 +1,3 @@
+output_format = "criterion"
+
+criterion_home = "./target/criterion"

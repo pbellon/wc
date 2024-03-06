@@ -9,6 +9,12 @@ edition = "2021"
 clap = { version = "4.5.1", features = ["derive"] }
 
 [lib]
-name="wc"
+name = "wc"
 path = "src/lib.rs"
 
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "wc_benchmark"
+harness = false
