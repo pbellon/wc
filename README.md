@@ -4,7 +4,6 @@ Small experiment to mimic `wc` GNU utils. My goal with this project is to learn 
 
 ## Tasks
 
-- [ ] Handle stdin if no files given or if files contain `-`
 - [ ] Experiment with cargo bench
 - [ ] Add tests for invalid cases
   - [ ] Non-existing file

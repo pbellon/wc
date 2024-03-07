@@ -51,7 +51,7 @@ pub fn process_files(paths: &Vec<String>, metrics: &[Metric]) -> io::Result<Vec<
     let mut total_counts = Counts(0, 0, 0);
     let mut results: Vec<WcLineResult> = Vec::new();
 
-    if paths.is_empty() || (paths.len() == 1 && paths[0] == "-") {
+    if paths.is_empty() {
         let stdin_counts = process_stdin()?;
         total_counts = total_counts + stdin_counts;
         results.push(WcLineResult::from(&stdin_counts, "", metrics));
